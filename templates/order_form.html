@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    {{ super() }}
+    <script type="text/javascript" src="/static/js/submit_order.js" defer></script>
+{% endblock head %}
+
+{% block body %}
+
+<h2>{{ title }}</h2>
+
+<p>
+    <a href="/"></a>
+    <br>
+    <div id="div_chosen_items_area">
+        sku:
+        <input name="sku" id="input_sku" type="text"><br>
+        quantity:
+        <input name="quantity" id="input_qty" type="number" value="1"><br>
+        <button onclick="addItem()">add item</button><br>
+        <p id="p_chosen_items_area"></p>
+    </div>
+
+    <form method="POST" action="/submit_order">
+        customer:
+        <input name="customer" type="text"><br>
+        destination_address:
+        <input name="destination_address" type="text"><br>
+        email:
+        <input name="email" type="email"><br>
+        courier:
+        <select name="courier">
+            {% for courier in couriers %}
+                <option value="{{ courier[0] }}">{{ courier[1] }}</option>
+            {% endfor %}
+        </select><br>
+        <input value="submit order" type="submit"><br>
+
+        <input name="sku_qty_dict" type="hidden" id="input_hidden" value="">
+
+    </form>
+</p>
+
+{% endblock body %}

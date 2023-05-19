@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<p>
+    <a href="/">back to main page</a>
+    <br>
+    <a href="/order_form">submit order</a>
+</p>
+
+<h2>{{ title }}</h2>
+
+<p>
+    <table>
+        <tr>
+            {% for column_name in column_names %}
+                <th>{{ column_name }}</th>
+            {% endfor %}
+        </tr>
+        {% for item in items %}
+            <tr>
+                {% for data in item %}
+                    <td>{{ data }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+</p>
+
+{% endblock body %}
