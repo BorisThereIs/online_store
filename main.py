@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import os
 from dbc import UseDatabase
 import json
+from datetime import datetime, timezone, timedelta
 
 load_dotenv()
 
@@ -19,6 +20,10 @@ def test() -> str:
     message = "Welcome !"
     return render_template('entry.html',
                             title=message)
+
+@app.route('/jinja_test')
+def jinja_test():
+    return render_template('jinja_test.html')
 
 @app.route('/all_items')
 def get_all_items():
@@ -66,7 +71,28 @@ def get_order_page():
 @app.route('/submit_order', methods=['POST', 'GET'])
 def submit_order():
     # insert new order into db
+    new_order_data = (
+                    request.form['customer'],
+                    request.form['destination_address'],
+                    int(request.form['courier']),
+                    datetime.now(timezone(timedelta(0))),
+                    request.form['email'],
+                    )
+
     sku_qty = json.loads(request.form['sku_qty_dict'])
+    with UseDatabase(app.config['dbconfig']) as cursor:
+        sql_insert_new_order = """
+                INSERT INTO `order` (
+                    recepient_name,
+                    destination_address,
+                    courier,
+                    order_datetime,
+                    email
+                    )
+                    VALUES(%s, %s, %s, %s, %s)
+                """
+        cursor.execute(sql_insert_new_order, new_order_data)
+        new_order_no = cursor.lastrowid
 
     message = (f"Your order:"
                 f"full name: {request.form['customer']}"

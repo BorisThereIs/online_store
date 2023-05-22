@@ -1,30 +1,58 @@
 {% extends 'base.html' %}
 
+{% block head %}
+    {{ super() }}
+    <script type="text/javascript" src="/static/js/all_items_page_functions.js" defer></script>
+{% endblock head %}
+
 {% block body %}
 
-<p>
-    <a href="/">back to main page</a>
-    <br>
-    <a href="/order_form">submit order</a>
-</p>
-
-<h2>{{ title }}</h2>
-
-<p>
-    <table>
-        <tr>
-            {% for column_name in column_names %}
-                <th>{{ column_name }}</th>
-            {% endfor %}
-        </tr>
-        {% for item in items %}
-            <tr>
-                {% for data in item %}
-                    <td>{{ data }}</td>
+<div class="main-parent-div">
+    <div class="header">
+        List of all items<br>
+    </div>
+    <div class="flex-parent-div">
+        <div class="left-side_area" id="div_output">
+            <div class="cart-management">
+                items in cart:
+                <output id="num_of_items_in_cart"></output>
+                <br>
+                <button type="button" id="btn-clr-cart">Clear cart</button>
+                <form>
+                    <button type="submit" formaction="/order_form" id="btn-order" style="display: none;">Order</button>
+                </form>
+                <br>
+            </div>
+            <div class="cart" id="cart">
+            </div>
+        </div>
+        <div class="content">
+            <table>
+                <tr>
+                    {% for column_name in column_names %}
+                        <th>{{ column_name }}</th>
+                    {% endfor %}
+                </tr>
+                {% for item in items %}
+                    <tr id="{{ 'tr_' ~ loop.index }}">
+                    {% set outer_loop = loop %}
+                        {% for data in item %}
+                            <td id="{{ 'td_' ~ outer_loop.index ~ '_' ~ loop.index }}">
+                                {{ data }}
+                            </td>
+                            {% if loop.last %}
+                                <td id="{{ 'td_' ~ outer_loop.index ~ '_' ~ (loop.index + 1) }}">
+                                    <button class="btn-add-to-cart" id="{{ 'btn_' ~ outer_loop.index }}">
+                                        add to cart
+                                    </button>
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
                 {% endfor %}
-            </tr>
-        {% endfor %}
-    </table>
-</p>
+            </table>
+        </div>
+    </div>
+</div>
 
 {% endblock body %}
