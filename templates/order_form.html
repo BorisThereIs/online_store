@@ -2,33 +2,26 @@
 
 {% block head %}
     {{ super() }}
-    <script type="text/javascript" src="/static/js/submit_order.js" defer></script>
+    <script type="text/javascript" src="/static/js/order_form_functions.js" defer></script>
 {% endblock head %}
 
 {% block body %}
 
 <h2>{{ title }}</h2>
 
-<p>
-    <a href="/"></a>
-    <br>
-    <div id="div_chosen_items_area">
-        sku:
-        <input name="sku" id="input_sku" type="text"><br>
-        quantity:
-        <input name="quantity" id="input_qty" type="number" value="1"><br>
-        <button onclick="addItem()">add item</button><br>
-        <p id="p_chosen_items_area"></p>
-    </div>
-
-    <form method="POST" action="/submit_order">
-        customer:
+<a href="/all_items">back to catalog</a>
+<br>
+<div id="chosen-items-area">
+</div>
+<div>
+    <form method="POST" action="/submit_order" id="submit_order_form">
+        Full Name:
         <input name="customer" type="text"><br>
-        destination_address:
+        Destination address:
         <input name="destination_address" type="text"><br>
-        email:
+        Email:
         <input name="email" type="email"><br>
-        courier:
+        Courier:
         <select name="courier">
             {% for courier in couriers %}
                 <option value="{{ courier[0] }}">{{ courier[1] }}</option>
@@ -36,9 +29,9 @@
         </select><br>
         <input value="submit order" type="submit"><br>
 
-        <input name="sku_qty_dict" type="hidden" id="input_hidden" value="">
+        <input name="hid_items_to_submit" type="hidden" value="">
 
     </form>
-</p>
+</div>
 
 {% endblock body %}

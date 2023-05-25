@@ -79,27 +79,62 @@ def submit_order():
                     request.form['email'],
                     )
 
-    sku_qty = json.loads(request.form['sku_qty_dict'])
+    raw_items = json.loads(request.form['hid_items_to_submit'])
+    print(new_order_data)
+    print(raw_items)
+
     with UseDatabase(app.config['dbconfig']) as cursor:
         sql_insert_new_order = """
-                INSERT INTO `order` (
-                    recepient_name,
-                    destination_address,
-                    courier,
-                    order_datetime,
-                    email
-                    )
-                    VALUES(%s, %s, %s, %s, %s)
-                """
+            INSERT INTO `order` (
+                recepient_name,
+                destination_address,
+                courier,
+                order_datetime,
+                email
+            )
+            VALUES(%s, %s, %s, %s, %s)
+            """
         cursor.execute(sql_insert_new_order, new_order_data)
         new_order_no = cursor.lastrowid
 
-    message = (f"Your order:"
-                f"full name: {request.form['customer']}"
-                f"destination_address: {request.form['destination_address']}"
-                f"email: {request.form['email']}"
-                f"courier: {request.form['courier']}"
-                f"sku_qty_dict: {request.form['sku_qty_dict']}")
+        print(f"new_order_no:{new_order_no}")
+
+        prepared_items = []
+        for item in raw_items:
+            prepared_items.append(
+                (
+                    new_order_no,
+                    item['sku'],
+                    item['qty'],
+                    item['price'] * item['qty'],
+                )
+            )
+
+        print(f"prepared_items:\n{prepared_items}")
+
+        sql_insert_new_order_sku_details = """
+            INSERT INTO `order_sku` (
+                order_id,
+                sku,
+                quantity,
+                orderline_price
+            )
+            VALUES(%s, %s, %s, %s)
+            """
+        cursor.executemany(sql_insert_new_order_sku_details, prepared_items)
+        print(f"rowcount:{cursor.rowcount}\n"
+                f"statement:{cursor.statement}\n"
+                f"with_rows:{cursor.with_rows}\n"
+                f"fetchall result:\n{cursor.fetchall()}")
+
+    # message = (f"Your order:"
+    #             f"full name: {request.form['customer']}"
+    #             f"destination_address: {request.form['destination_address']}"
+    #             f"email: {request.form['email']}"
+    #             f"courier: {request.form['courier']}"
+    #             f"sku_qty_dict: {request.form['sku_qty_dict']}")
+
+    message = "some message"
     return render_template('entry.html',
                             message=message)
 

@@ -13,7 +13,8 @@ function addItem(e) {
     items_to_order.push({
         "sku": item_sku.innerText,
         "name": item_name.innerText,
-        "price": item_price.innerText
+        "price": Number(item_price.innerText),
+        "qty": 1
     });
 
     sessionStorage.setItem("items_to_order", JSON.stringify(items_to_order))
