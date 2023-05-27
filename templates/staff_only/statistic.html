@@ -1,0 +1,46 @@
+{% extends '/staff_only/control_panel.html' %}
+
+{% block head %}
+    {{ super() }}
+    <title>{{ the_title }}</title>
+    <!-- <script type="text/javascript" src="/static/js/waiting_orders_functions.js" defer></script> -->
+{% endblock head%}
+
+{% block body %}
+
+    {{ super() }}
+
+    <div>
+        <div>
+            <table>
+                <tr>
+                    <th>metric</th>
+                    <th>value</th>
+                </tr>
+                {% for metric, value in metrics.items() %}
+                    <tr>
+                        <td>{{ metric }}</td>
+                        <td>{{ value }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div>
+            <table>
+                <tr>
+                    {% for column_name in top5_columns %}
+                        <th>{{ column_name }}</th>
+                    {% endfor %}
+                </tr>
+                {% for customer in top5_customers %}
+                    <tr>
+                        {% for data in customer %}
+                            <td>{{ data }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+{% endblock body %}

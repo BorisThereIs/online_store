@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <link rel="stylesheet" href="/static/main.css" />
+
+{% endblock head %}
+
+{% block body %}
+    <div class="control-panel-header-div">
+        <a class="control-panel-header-a" href="/staff_only/waiting_orders">waiting orders</a>
+        <a class="control-panel-header-a" href="/staff_only/all_orders"> all orders</a>
+        <a class="control-panel-header-a" href="" hidden>shipped orders</a>
+        <a class="control-panel-header-a" href="/staff_only/statistic">statistic</a>
+    </div>
+{% endblock body %}

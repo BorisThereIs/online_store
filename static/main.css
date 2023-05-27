@@ -123,3 +123,38 @@ div.main-parent-div {
   height: fit-content;
   width: 100%;
 }
+.control-panel-header-div {
+  margin: 10px 5px 20px 5px;
+}
+.status-area-div {
+  position: sticky;
+  top: 0;
+  left: 0;
+}
+
+a.control-panel-header-a:link, a.control-panel-header-a:visited  {
+  margin: 5px 10px 5px 10px;
+  padding: 5px 5px 5px 5px;
+  text-decoration: none;
+  text-align: center;
+  color: white;
+
+}
+a.control-panel-header-a:hover {
+  text-decoration: underline;
+}
+
+details.waiting-order-details {
+  color: green;
+}
+
+tr.tr-table-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  background-color: white;
+}
+
+th.th-table-header {
+  text-align: center;
+}

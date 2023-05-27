@@ -1,0 +1,42 @@
+{% extends '/staff_only/control_panel.html' %}
+
+{% block head %}
+    {{ super() }}
+    <title>{{ the_title }}</title>
+    <script type="text/javascript" src="/static/js/all_orders_functions.js" defer></script>
+{% endblock head%}
+
+{% block body %}
+
+    {{ super() }}
+
+    <div>
+    </div>
+
+    <div>
+        <table>
+            <tr class="tr-table-header">
+                {% for column_name in order_column_names %}
+                    <th class="th-table-header">{{ column_name }}</th>
+                {% endfor %}
+            </tr>
+            {% for order in  all_orders %}
+                <tr id="{{ 'order_tr_' ~ loop.index }}">
+                {% set order_loop = loop %}
+                    {% for data in order %}
+                        <td id="{{ 'order_td_' ~ order_loop.index ~ '_' ~ loop.index }}">{{ data }}</td>
+                        {% if loop.last %}
+                            <td id="{{ 'order_td_' ~ order_loop.index ~ '_' ~ (loop.index + 1)}}">
+                                <button class="get-order-details-btn" id="{{ 'order_details_btn_' ~ order_loop.index }}">Show details</button>
+                            </td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td colspan="{{ order|length }}" id="{{ 'td_order_details_' ~ loop.index }}"></td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+{% endblock body %}
