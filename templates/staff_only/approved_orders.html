@@ -1,0 +1,47 @@
+{% extends '/staff_only/control_panel.html' %}
+
+{% block head %}
+    {{ super() }}
+    <title>{{ the_title }}</title>
+    <script type="text/javascript" src="/static/js/approved_orders_functions.js" defer></script>
+{% endblock head%}
+
+{% block body %}
+
+    {{ super() }}
+
+    <div>
+        <div class="status-area-div" id="status_area_div"></div>
+    </div>
+
+    <div>
+        {% if not there_are_approved_orders %}
+            <h2>There is no any approved order at the moment</h2>
+        {% else %}
+            <table>
+                <tr class="tr-table-header">
+                    {% for column_name in order_column_names %}
+                        <th class="th-table-header">{{ column_name }}</th>
+                    {% endfor %}
+                </tr>
+                {% for order in  approved_orders %}
+                    <tr id="{{ 'order_tr_' ~ loop.index }}">
+                    {% set order_loop = loop %}
+                        {% for data in order %}
+                            <td id="{{ 'order_td_' ~ order_loop.index ~ '_' ~ loop.index }}">{{ data }}</td>
+                            {% if loop.last %}
+                                <td id="{{ 'order_td_' ~ order_loop.index ~ '_' ~ (loop.index + 1)}}">
+                                    <button class="order-ship-btn" id="{{ 'order_ship_btn_' ~ order_loop.index }}">mark as shipped</button>
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                    <tr>
+                        <td colspan="{{ order|length }}" id="{{ 'td_update_status_' ~ loop.index }}"></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+    </div>
+
+{% endblock body %}

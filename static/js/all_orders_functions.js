@@ -17,6 +17,7 @@ async function getOrderDetails(e) {
     const fetchResult = await fetchResponse.json();
     let orderDetailsArea = document.getElementById(`td_order_details_${lineNo}`);
     if (fetchResult['update-status'] == 'ok') {
+        e.target.setAttribute("disabled", "");
         let orderDetails = JSON.parse(fetchResult['order_details']);
         let column_names = fetchResult['column_names'];
 

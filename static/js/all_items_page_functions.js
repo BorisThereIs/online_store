@@ -8,8 +8,6 @@ function addItem(e) {
     let item_name = document.getElementById(`td_${lineNo}_2`);
     let item_price = document.getElementById(`td_${lineNo}_4`);
 
-    // console.log(`line: ${lineNo}`);
-
     items_to_order.push({
         "sku": item_sku.innerText,
         "name": item_name.innerText,
@@ -23,9 +21,6 @@ function addItem(e) {
     if (items_to_order.length == 1) {
         orderBtn.style.display = "inline";
     }
-    // console.log(`array length: ${items_to_order.length}`);
-    // console.log(`storage:\n${sessionStorage.getItem("items_to_order")}`);
-
 }
 
 function showItemAtCart(item) {

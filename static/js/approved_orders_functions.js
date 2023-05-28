@@ -1,11 +1,11 @@
 //
 
-async function getOrderDetails(e) {
+async function shipOrder(e) {
     //
-    let approveBtnId = e.target.id;
-    let lineNo = approveBtnId.substring(approveBtnId.lastIndexOf('_') + 1);
+    let shipBtnId = e.target.id;
+    let lineNo = shipBtnId.substring(shipBtnId.lastIndexOf('_') + 1);
     let orderNo = document.getElementById(`order_td_${lineNo}_1`).innerText;
-    // hidden tr
+
     const fetchResponse = await fetch("/staff_only/update_order_status",
                                     {method: "POST",
                                     headers: {
@@ -13,14 +13,16 @@ async function getOrderDetails(e) {
                                         },
                                     body: JSON.stringify({
                                         "order_id": Number(orderNo),
-                                        "order_status": "approved"
+                                        "order_status": "shipped",
+                                        "ship_datetime": Date.now() / 1000
                                         })
                                     });
     const fetchResult = await fetchResponse.json();
-    let statusArea = document.getElementById('status_area_div');
+    let statusArea = document.getElementById(`td_update_status_${lineNo}`);
     if (fetchResult['update-status'] == 'ok') {
+        e.target.setAttribute("disabled", "");
         statusArea.innerHTML += `<p style="color:green;">
-                                    order #${orderNo} status: approved<br></p>`;
+                                    order #${orderNo} status marked as shipped<br></p>`;
     } else {
         statusArea.innerHTML += `<p style="color:red;">
                                     order #${orderNo} status: error occured<br>
@@ -29,7 +31,7 @@ async function getOrderDetails(e) {
 
 }
 
-var orderDetailsBtnList = document.querySelectorAll('.order-approve-btn');
+var orderDetailsBtnList = document.querySelectorAll('.order-ship-btn');
 orderDetailsBtnList.forEach((element) => {
-    element.addEventListener('click', getOrderDetails);
+    element.addEventListener('click', shipOrder);
 })

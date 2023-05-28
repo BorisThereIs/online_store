@@ -21,10 +21,6 @@ def test() -> str:
     return render_template('entry.html',
                             title=message)
 
-@app.route('/jinja_test')
-def jinja_test():
-    return render_template('jinja_test.html')
-
 @app.route('/all_items')
 def get_all_items():
     # retreive all items
@@ -71,70 +67,63 @@ def get_order_page():
 @app.route('/submit_order', methods=['POST', 'GET'])
 def submit_order():
     # insert new order into db
+    raw_items = json.loads(request.form['hid_items_to_submit'])
+    order_sum = 0
+
+    for item in  raw_items:
+        order_sum += item['price'] * item['qty']
+
     new_order_data = (
                     request.form['customer'],
                     request.form['destination_address'],
                     int(request.form['courier']),
                     datetime.now(timezone(timedelta(0))),
                     request.form['email'],
+                    order_sum
                     )
 
-    raw_items = json.loads(request.form['hid_items_to_submit'])
-    print(new_order_data)
-    print(raw_items)
-
-    with UseDatabase(app.config['dbconfig']) as cursor:
-        sql_insert_new_order = """
-            INSERT INTO `order` (
-                recepient_name,
-                destination_address,
-                courier,
-                order_datetime,
-                email
-            )
-            VALUES(%s, %s, %s, %s, %s)
-            """
-        cursor.execute(sql_insert_new_order, new_order_data)
-        new_order_no = cursor.lastrowid
-
-        print(f"new_order_no:{new_order_no}")
-
-        prepared_items = []
-        for item in raw_items:
-            prepared_items.append(
-                (
-                    new_order_no,
-                    item['sku'],
-                    item['qty'],
-                    item['price'] * item['qty'],
+    try:
+        with UseDatabase(app.config['dbconfig']) as cursor:
+            sql_insert_new_order = """
+                INSERT INTO `order` (
+                    recepient_name,
+                    destination_address,
+                    courier,
+                    order_datetime,
+                    email,
+                    order_sum
                 )
-            )
+                VALUES(%s, %s, %s, %s, %s, %s)
+                """
+            cursor.execute(sql_insert_new_order, new_order_data)
+            new_order_no = cursor.lastrowid
+    
+            prepared_items = []
+            for item in raw_items:
+                prepared_items.append(
+                    (
+                        new_order_no,
+                        item['sku'],
+                        item['qty'],
+                        item['price'] * item['qty'],
+                    )
+                )
 
-        print(f"prepared_items:\n{prepared_items}")
+            sql_insert_new_order_sku_details = """
+                INSERT INTO `order_sku` (
+                    order_id,
+                    sku,
+                    quantity,
+                    item_sum
+                )
+                VALUES(%s, %s, %s, %s)
+                """
+            cursor.executemany(sql_insert_new_order_sku_details, prepared_items)
+            message = "You've successfully submited the order."
+    except Exception as err:
+        print(err)
+        message = f"Oops! Something went wrong. Error:<br>{str(err)}"
 
-        sql_insert_new_order_sku_details = """
-            INSERT INTO `order_sku` (
-                order_id,
-                sku,
-                quantity,
-                item_sum
-            )
-            VALUES(%s, %s, %s, %s)
-            """
-        cursor.executemany(sql_insert_new_order_sku_details, prepared_items)
-        print(f"rowcount:{cursor.rowcount}\n"
-                f"statement:{cursor.statement}\n"
-                f"with_rows:{cursor.with_rows}\n"
-                f"fetchall result:\n{cursor.fetchall()}")
-
-    # message = (f"Your order:"
-    #             f"full name: {request.form['customer']}"
-    #             f"destination_address: {request.form['destination_address']}"
-    #             f"email: {request.form['email']}"
-    #             f"courier: {request.form['courier']}"
-    #             f"sku_qty_dict: {request.form['sku_qty_dict']}")
-
-    message = "some message"
     return render_template('entry.html',
                             message=message)
 
@@ -187,7 +176,8 @@ def get_wating_orders():
 	        destination_address,
 	        c.name as courier,
 	        order_datetime,
-	        email
+	        email,
+            order_sum
         FROM
             `order` o, `courier` c
         WHERE
@@ -200,25 +190,29 @@ def get_wating_orders():
             os.order_id,
             os.sku,
             os.quantity,
+            i.unit_price,
             os.item_sum
         FROM
             `order` o JOIN `order_sku` os
             ON o.order_id = os.order_id
             AND o.status = 'waiting'
+            JOIN `item` i
+            ON os.sku = i.sku
     """
     try:
         with UseDatabase(app.config['dbconfig']) as cursor:
             cursor.execute(sql_get_waiting_orders)
             waiting_orders = cursor.fetchall()
+            order_column_names = cursor.column_names
             if (len(waiting_orders) == 1 and len(waiting_orders[0]) == 0):
                 return render_template('/staff_only/waiting_orders.html',
                                         there_are_waiting_orders=False)
             cursor.execute(sql_orders_sku_details)
             orders_sku_details = cursor.fetchall()
+            sku_details_column_names = cursor.column_names
     except Exception as err:
         print(err)
-    order_column_names = ('order_id', 'recepient_name', 'destination_address', 'courier', 'order_datetime', 'email',)
-    sku_details_column_names = ('order_id', 'sku', 'quantity', 'item_sum',)
+
     return render_template('/staff_only/waiting_orders.html',
                             there_are_waiting_orders=True,
                             waiting_orders=waiting_orders,
@@ -295,36 +289,14 @@ def get_statistic():
             metrics['orders_not_shipped_count'] = cursor.fetchall()[0][0]
             cursor.execute(sql_top5_customers)
             top5_customers = cursor.fetchall()
+            top5_columns = cursor.column_names
     except Exception as err:
         print(err)
-
-    top5_columns = ('recepient_name', 'orders_count', 'orders_sum', 'customer_rank',)
 
     return render_template('staff_only/statistic.html',
                             metrics=metrics,
                             top5_customers=top5_customers,
                             top5_columns=top5_columns)
-
-@app.route('/staff_only/approve_order', methods=['POST'])
-def approve_order():
-    #
-    response = {}
-    sql_update_order_status_to_confirmed = """
-        UPDATE `order`
-        SET status = 'approved'
-        WHERE order_id = %s
-    """
-    try:
-        with UseDatabase(app.config['dbconfig']) as cursor:
-            cursor.execute(sql_update_order_status_to_confirmed,
-                            (request.json['order_id'],))
-            response['update-status'] = "ok"
-    except Exception as err:
-        print(err)
-        response['update-status'] = "error"
-        response['error-message'] = str(err)
-
-    return jsonify(response)
 
 @app.route('/staff_only/order_details', methods=['POST'])
 def get_order_details():
@@ -354,6 +326,80 @@ def get_order_details():
             response['update-status'] = "ok"
             response['column_names'] = cursor.column_names
             response['order_details'] = json.dumps(order_details)
+    except Exception as err:
+        print(err)
+        response['update-status'] = "error"
+        response['error-message'] = str(err)
+
+    return jsonify(response)
+
+@app.route('/staff_only/approved_orders')
+def get_approved_orders():
+    #
+    sql_get_approved_orders = """
+        SELECT
+	        order_id,
+	        recepient_name,
+	        destination_address,
+            if(is_shipped, 'Y', 'N') as is_shipped,
+	        c.name as courier,
+	        order_datetime,
+	        email,
+            status,
+            order_sum
+        FROM
+            `order` o, `courier` c
+        WHERE
+            o.courier = c.courier_id
+            and status = 'approved'
+            and is_shipped = 0
+        ORDER BY order_id ASC
+    """
+    try:
+        with UseDatabase(app.config['dbconfig']) as cursor:
+            cursor.execute(sql_get_approved_orders)
+            approved_orders = cursor.fetchall()
+            if (len(approved_orders) == 1 and len(approved_orders[0]) == 0):
+                return render_template('/staff_only/approved_orders.html',
+                                        there_are_approved_orders=False)
+    except Exception as err:
+        print(err)
+    order_column_names = cursor.column_names
+    return render_template('/staff_only/approved_orders.html',
+                            there_are_approved_orders=True,
+                            approved_orders=approved_orders,
+                            order_column_names=order_column_names)
+
+@app.route('/staff_only/update_order_status', methods=['POST'])
+def update_order_status():
+    #
+    response = {}
+
+    if request.json['order_status'] == 'shipped':
+        sql_update_order_status = """
+        UPDATE `order`
+        SET is_shipped = %s,
+            shipped_datetime = %s
+        WHERE order_id = %s
+        """
+        update_params = (True,
+                        datetime.fromtimestamp(request.json['ship_datetime'],
+                                                timezone(timedelta(0))),
+                        request.json['order_id'],)
+    elif request.json['order_status'] == 'approved':
+        sql_update_order_status = """
+            UPDATE `order`
+            SET status = %s
+            WHERE order_id = %s
+        """
+        update_params = (request.json['order_status'],
+                        request.json['order_id'],)
+
+    try:
+        with UseDatabase(app.config['dbconfig']) as cursor:
+            cursor.execute(sql_update_order_status,
+                            update_params)
+            response['update-status'] = "ok"
     except Exception as err:
         print(err)
         response['update-status'] = "error"
