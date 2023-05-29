@@ -1,12 +1,12 @@
 # online_store
 
 ## Content
-- [Overview](https://github.com/BorisThereIs/online_store/edit/master/README.md#overview)
-- [How to use app as a customer](https://github.com/BorisThereIs/online_store/edit/master/README.md#how-to-use-app-as-a-customer)
-- [How to use app as a staff](https://github.com/BorisThereIs/online_store/edit/master/README.md#how-to-use-app-as-a-staff)
-- [Order flow](https://github.com/BorisThereIs/online_store/edit/master/README.md#order-flow)
-- [DB schema diagram](https://github.com/BorisThereIs/online_store/edit/master/README.md#db-schema-diagram)
-- [Do it before running app ..](https://github.com/BorisThereIs/online_store/edit/master/README.md#do-it-before-running-app-)
+- [Overview](#overview)
+- [How to use app as a customer](#how-to-use-app-as-a-customer)
+- [How to use app as a staff](#how-to-use-app-as-a-staff)
+- [Order flow](#order-flow)
+- [DB schema diagram](#db-schema-diagram)
+- [Do it before running app ..](#do-it-before-running-app-)
 
 ## Overview
 Flask based web app implemented as a test assignment. 
