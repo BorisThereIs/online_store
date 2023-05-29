@@ -16,10 +16,9 @@ app.config['dbconfig'] = {'host': os.environ['DB_HOST'],
 
 @app.route('/')
 def test() -> str:
-    # just a test route
-    message = "Welcome !"
+    # entry page
     return render_template('entry.html',
-                            title=message)
+                            message='Welcome !')
 
 @app.route('/all_items')
 def get_all_items():
@@ -164,7 +163,6 @@ def get_all_orders():
     return render_template('/staff_only/all_orders.html',
                             all_orders=all_orders,
                             order_column_names=order_column_names)
-
 
 @app.route('/staff_only/waiting_orders')
 def get_wating_orders():
