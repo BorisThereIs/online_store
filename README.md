@@ -1,4 +1,13 @@
 # online_store
+
+## Content
+- [Overview](https://github.com/BorisThereIs/online_store/edit/master/README.md#overview)
+- [How to use app as a customer](https://github.com/BorisThereIs/online_store/edit/master/README.md#how-to-use-app-as-a-customer)
+- [How to use app as a staff](https://github.com/BorisThereIs/online_store/edit/master/README.md#how-to-use-app-as-a-staff)
+- [Order flow](https://github.com/BorisThereIs/online_store/edit/master/README.md#order-flow)
+- [DB schema diagram](https://github.com/BorisThereIs/online_store/edit/master/README.md#db-schema-diagram)
+- [Do it before running app ..](https://github.com/BorisThereIs/online_store/edit/master/README.md#do-it-before-running-app-)
+
 ## Overview
 Flask based web app implemented as a test assignment. 
 A goal is to implement a model of a simple online store with the following functionality:
@@ -43,4 +52,13 @@ A new order appiers in db with status "waiting" after submitting the one on beha
 
 ## DB schema diagram
 
-## Before running app ..
+![db schema diagram](https://github.com/BorisThereIs/online_store/blob/master/readme_assets/mysql-db-schema-model-20230529.png "db schema diagram")
+
+There is a model file which you can import to MySQL Workbench.
+
+## Do it before running app ..
+.. create a db schema using one of two provided sql files:
+- mysql-db-dump-schema-and-data-20230529 - creates schema and populate it with mock data
+- mysql-db-dump-schema-only-20230529 - create only schema
+
+I recommend the first one.
